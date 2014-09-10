@@ -1,0 +1,137 @@
+install.packages(c("ff", "ffbase"))
+library("ff")
+library("ffbase")
+
+//Yields error on data
+headset <- read.csv.ffdf(file="C:\\Users\\Public\\Documents\\trx.csv", header=TRUE, VERBOSE=TRUE, nrows=1000)
+headclasses = sapply(headset, class)
+headclasses["VWJEFECHAD"] = "numeric"
+headclasses["VWJEFECHAM"] = "numeric"
+headclasses["VWJEFECHAA"] = "numeric"
+headclasses["VWJEHORA"] = "numeric"
+headclasses["C87500"] = "numeric"
+headclasses["C87550"] = "factor"
+headclasses["C87502"] = "factor"
+headclasses["C87503"] = "numeric"
+headclasses["C87560"] = "numeric"
+headclasses["C87506"] = "numeric"
+headclasses["C87507"] = "factor"
+headclasses["C87510"] = "numeric"
+headclasses["C87543"] = "numeric"
+headclasses["C87544"] = "numeric"
+headclasses["C87511"] = "numeric"
+headclasses["C87512"] = "numeric"
+headclasses["C87514"] = "numeric"
+headclasses["C87519"] = "factor"
+headclasses["C87567"] = "factor"
+headclasses["C87535"] = "numeric"
+headclasses["C87580"] = "numeric"
+headclasses["C87584"] = "numeric"
+headclasses["C87530"] = "numeric"
+headclasses["C87566"] = "numeric"
+headclasses["C87593"] = "factor"
+headclasses["C87594"] = "factor"
+headclasses["C87596"] = "factor"
+headclasses["C87601"] = "factor"
+
+
+new_x <- read.csv.ffdf(file="C:\\Users\\Public\\Documents\\trx.csv", header=TRUE, VERBOSE=TRUE, first.rows=10000, next.rows=50000, colClasses=NA)
+
+
+unique(new_x[,c("C87500")])
+tabulate(new_x[,c("C87500")]) //Contar cuantas veces ocurre cada valor
+// Do statistical operations on data
+mean(as.numeric(new_x[,c("C87500")]))
+summary(as.numeric(new_x[,c("C87500")]))
+
+//histograms - muestra frecuencias
+hist(as.numeric(new_x[,c("C87500")]))
+hist(as.numeric(new_x[,c("C87500")]), breaks=400)
+
+//generate normal distribution
+hist(rnorm(total, mean, standard deviation))
+hist(rnorm(length(new_x[,c("C87500")]), mean(new_x[,c("C87500")]), sd(new_x[,c("C87500")])))
+
+//geometric distribution
+hist(rgeom(length(new_x[,c("C87500")]), prob=.2))
+
+//Statistical Inference
+//Utilization of samples from data (population)
+// replace is used by statisticians
+sample(new_x[,c("C87500")], size=20, replace=TRUE)
+//See the tendency on 10 reruns
+// simplify returns as a vector of means
+replicate(10, mean(sample(new_x[,c("C87500")], size=500, replace=TRUE)), simplify=TRUE)
+mean(replicate(10, mean(sample(new_x[,c("C87500")], size=500, replace=TRUE)), simplify=TRUE))
+hist(replicate(10, mean(sample(new_x[,c("C87500")], size=500, replace=TRUE)), simplify=TRUE))
+
+//Calculate accuracy
+error_pct = (mean(replicate(10, mean(sample(new_x[,c("C87500")], size=500, replace=TRUE)), simplify=TRUE))-mean(new_x[,c("C87500")]))/mean(new_x[,c("C87500")])
+errerror_pct *100
+
+//Ideas behind statistics
+// - Law of large numbers Running a statistic operation for a large number of iterations converges to a stable result
+// - The bigger the sample size the closest the value will be
+
+//sampling normal distributions
+dataSamples <- replicate(100, mean(sample(new_x[,c("C87500")], size=1e6, replace=TRUE)), simplify=TRUE)
+hist(dataSamples)
+summary(dataSamples)
+//Cutting quantiles
+quantile(dataSamples, probs=c(0.25, 0.5, 0.75))
+quantile(dataSamples, probs=c(0.05, 0.95))
+//Esto da una idea de si los valores se encuentran dentro de rangos comunes
+//en la distribucion normal de los promedios del campo C87500
+// esta es la base de la estadistica inferencial
+quantile(dataSamples, probs=c(0.01, 0.99))
+
+//Standard error of the mean (sd) - larger sampleSize => smaller error
+sampleSize = 1e6 
+stdError <- sd(new_x[,c("C87500")])/sqrt(sampleSize)
+
+point5Quantile <- mean(new_x[,c("C87500")]) - (2 * stdError)
+point95Quantile <- mean(new_x[,c("C87500")]) + (2 * stdError)
+
+Process: 
+1. Get data
+2. Build histogram to see distribution
+3. generate Normal distribution
+4. Define extremes
+5. Evaluate new points of information
+
+//Inside of R studio
+
+Function <- function(param)
+{
+    return(param)
+}
+
+names(headset) <- c("uno", "dos", "tres", "cuatro", "cinco","seis","siete","ocho","nueve","diez","once","doce","trece","catorce","quince","dieciseis","diecisiete","dieciocho","diecinueve","veinte","veinteuno","veintedos","veintetres","veintecuatro","veintecinco","veinteseis","veintesiete","veinteocho")
+
+//poisson distribution
+
+hist(rpois(1000,10))
+plot(DelayProbability(rpois(100,10),1,20), col=2)
+points(DelayProbability(rpois(100,10),1,20), col=2)
+
+Redes neuronales Generales e Individuales (por cliente)
+
+Data de entrenamiento (70% - 30%)
+
+Tabulacion de Fraudes
+S - 2713
+F - 6992
+N - 5713564
+
+Fraude - 0.04%
+No Fraude - 99.96%
+
+Casos con data con fraude
+- Horas pico (Poisson SISTEMINUTE)
+- Dias pico (Poisson VWEJEFECHAD)
+
+Casos con data sin fraude
+- Hábitos cliente
+-- Distribucion sobre total por compra individual (Normal C87503)
+
+
