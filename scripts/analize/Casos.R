@@ -8,3 +8,6 @@ MontoSumAvgByClient<-function()
   promVentaCliente <- ddply(moneyDf,~idCliente,summarise,mean=mean(monto),sum=sum(monto))
   return(promVentaCliente)
 }
+
+#filtrar
+outputF  <- df[sapply(df, function(x) x=="N")]
