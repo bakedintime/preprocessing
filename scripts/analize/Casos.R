@@ -30,12 +30,6 @@ fraudeTipoProd <- function()
   frecTipoProd <- ddply(tipoProdFraude, .(tipoProd), summarise, freq=length(tipoProd))
 }
 
-normalize<-function(x, min, max)
-{
-  normalized <- (x-min)/(max-min)
-  return(normalized)
-}
-
 distCLDia <-function()
 {
   # Distribucion con tipo de producto CL agrupado por dia del mes
@@ -44,8 +38,7 @@ distCLDia <-function()
   names(tipoProdDf)[2] <- "indicador"
   names(tipoProdDf)[3] <- "dia"
   tipoProdFraude <- subset(tipoProdDf, tipoProdDf$indicador=="S" & tipoProdDf$tipoProd=="CL")
-  
-  
+   
   # Distribucion en base a la data
   hist(tipoProdFraude$dia, freq=TRUE)
 
@@ -54,14 +47,14 @@ distCLDia <-function()
   # Se genera un histograma de dist normal con los valores de la dist en base a los datos
   #n_dist <- rnorm(length(tipoProdFraude$dia), mean(tipoProdFraude$dia), sd(frecTipoProd$dia))
   #hist(n_dist)
-  
+
   summary(tipoProdFraude$dia)
   quantile(tipoProdFraude$dia, probs=c(0.01, 0.99))
   
-  minimum <- min(tipoProdFraude$dia)
-  maximum <- max(tipoProdFraude$dia)
+  minimum <- min(tipoProdFraude$mes)
+  maximum <- max(tipoProdFraude$mes)
   
-  normalized <- (tipoProdFraude$dia-minimum)/(maximum-minimum)
+  normalized <- (tipoProdFraude$mes-minimum)/(maximum-minimum)
   hist(normalized,xlab="Normalized Data",col="lightblue",main="")
   summary(normalized)
   
@@ -69,7 +62,12 @@ distCLDia <-function()
   tipoProdFraude <- within(tipoProdFraude, quartile <- as.integer(cut(dia, quantile(dia, probs=0:4/4), include.lowest=TRUE)))
   
   normalized <- within(data.frame(normalized),
-    quartile <- as.integer(cut((dia-min()), quantile(dia, probs=0:4/4), include.lowest=TRUE)))
+    quartile <- as.integer(
+      cut(
+        (
+          tipoProdFraude$dia-min(tipoProdFraude$dia)/(max(tipoProdFraude$dia)-min(tipoProdFraude$dia))
+          ), quantile(tipoProdFraude$dia, probs=0:4/4), include.lowest=TRUE)))
+  normalized$indicador <- tipoProdFraude$indicador
   
 }
 
