@@ -125,3 +125,111 @@ preprocessMarca <- function()
   normalizedDS <- cbind(marca, normalMes, normalDia, indicador)
   return(normalizedDS)
 }
+
+preprocessPais <- function()
+{
+  # Distribucion con tipo de producto agrupado por dia del mes
+  dframe <- data.frame(trx_data[,c("C87543", "C87519", "VWJEFECHAD", "VWJEFECHAM", "C87601")])
+  names(dframe)[1] <- "paisComercio"
+  names(dframe)[2] <- "paisTrx"
+  names(dframe)[3] <- "dia"
+  names(dframe)[4] <- "mes"
+  names(dframe)[5] <- "indicador"
+  
+  # Distribucion en base a la data
+  summary(dframe)
+  hist(as.numeric(dframe[[names(dframe)[1]]]))
+  
+  normalMes <- normalize(dframe[[names(dframe)[4]]])
+  normalDia <- normalize(dframe[[names(dframe)[3]]])
+  paisTrx <- normalize(as.numeric(dframe[[names(dframe)[2]]])) 
+  paisComercio <- normalize(dframe[[names(dframe)[1]]])
+  indicador <- normalize(as.numeric(dframe[[names(dframe)[4]]]))
+  
+  hist(paisComercio)
+  
+  normalizedDS <- cbind(paisComercio, paisTrx, normalMes, normalDia, indicador)
+  return(normalizedDS)
+}
+
+preprocessHora <- function()
+{
+  # Distribucion con tipo de producto agrupado por dia del mes
+  dframe <- data.frame(trx_data[,c("VWJEHORA", "VWJEFECHAD", "VWJEFECHAM", "C87601")])
+  names(dframe)[1] <- "hora"
+  names(dframe)[2] <- "mes"
+  names(dframe)[3] <- "dia"
+  names(dframe)[4] <- "indicador"
+  
+  dframe$hora <- strptime(formatC(as.numeric(dframe$hora), width = 6, format = 'd', flag = '0'), "%H%M%S")
+  dtPOSIXct <- as.POSIXct(dframe$hora)
+  
+  # extract time of 'date+time' (POSIXct) in hours as numeric
+  dframe$hora <- as.numeric(dtPOSIXct - trunc(dtPOSIXct, "days"))
+  class(dframe$hora) <- "POSIXct"
+  
+  p <- qplot(dframe$hora, binwidth=5000) + xlab("Time slot") +
+    scale_x_datetime(labels = date_format("%H:00"), breaks = date_breaks("5000 sec"))
+  print(p)
+  
+  # Distribucion en base a la data
+  summary(dframe)
+  hist(dframe[[names(dframe)[1]]], breaks=25)
+  
+  normalMes <- normalize(dframe[[names(dframe)[2]]])
+  normalDia <- normalize(dframe[[names(dframe)[3]]])
+  hora <- normalize(dframe[[names(dframe)[1]]])
+  indicador <- normalize(as.numeric(dframe[[names(dframe)[4]]]))
+  
+  hist(hora)
+  
+  normalizedDS <- cbind(hora, normalMes, normalDia, indicador)
+  return(normalizedDS)
+}
+
+preprocessMontoSumAvgByClient<-function()
+{
+  # Field: e.g. C87503
+  # Fieldname: e.g. "monto"
+  moneyDf <- data.frame(trx_data[,c("C87503","C87584", "VWJEFECHAD")])
+  names(moneyDf)[1] <- "monto"
+  names(moneyDf)[2] <- "idCliente"
+  names(moneyDf)[3] <- "dia"
+  promVentaCliente <- ddply(moneyDf,c("idCliente","dia"),summarise,mean=mean(monto),sum=sum(monto))
+  
+  normalDia <- normalize(promVentaCliente$dia)
+  normalPromedio <- normalize(promVentaCliente$mean)
+  normalTotal <- normalize(promVentaCliente$sum)
+  normalIdCliente <- normalize(promVentaCliente$idCliente)
+  
+  normalizedDS <- cbind(normalDia, normalIdCliente, normalPromedio, normalTotal)
+  
+  ggplot(promVentaCliente,aes(x=dia,y=mean))+geom_bar(stat='identity')
+  
+  return(promVentaCliente)
+}
+
+preprocessFreqPaisComercioByClient<-function()
+{
+  # Field: e.g. C87503
+  # Fieldname: e.g. "monto"
+  moneyDf <- data.frame(trx_data[,c("C87543","C87584", "VWJEFECHAD")])
+  names(moneyDf)[1] <- "paisComercio"
+  names(moneyDf)[2] <- "idCliente"
+  names(moneyDf)[3] <- "dia"
+  promVentaCliente <- ddply(moneyDf,c("idCliente","dia"),summarise,freq=length(paisComercio))
+  
+  normalDia <- normalize(promVentaCliente$dia)
+  normalFreq <- normalize(promVentaCliente$freq)
+  normalIdCliente <- normalize(promVentaCliente$idCliente)
+  
+  normalizedDS <- cbind(normalDia, normalFreq, normalIdCliente)
+  
+  ggplot(promVentaCliente,aes(x=idCliente,y=freq))+geom_bar(stat='identity')
+  
+  return(promVentaCliente)
+}
+
+
+
+
