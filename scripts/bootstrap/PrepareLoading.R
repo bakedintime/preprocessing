@@ -9,9 +9,13 @@ PrepareLoading<-function()
   EnsurePackage("htmltools")
   EnsurePackage("bitops")
   EnsurePackage("rmarkdown")
+  EnsurePackage("ggplot2")
+  EnsurePackage("scales")
   
   library("ff")
   library("ffbase")
   library("plyr")
   library("yaml")
+  library("ggplot2")
+  library("scales")
 }
