@@ -138,7 +138,7 @@ preprocessPais <- function()
   
   # Distribucion en base a la data
   summary(dframe)
-  hist(as.numeric(dframe[[names(dframe)[1]]]))
+  hist(as.numeric(dframe[[names(dframe)[2]]]), breaks=150)
   
   normalMes <- normalize(dframe[[names(dframe)[4]]])
   normalDia <- normalize(dframe[[names(dframe)[3]]])
@@ -200,11 +200,28 @@ preprocessMontoSumAvgByClient<-function()
   normalDia <- normalize(promVentaCliente$dia)
   normalPromedio <- normalize(promVentaCliente$mean)
   normalTotal <- normalize(promVentaCliente$sum)
-  normalIdCliente <- normalize(promVentaCliente$idCliente)
+  idCliente <- promVentaCliente$idCliente
   
-  normalizedDS <- cbind(normalDia, normalIdCliente, normalPromedio, normalTotal)
+  normalizedDS <- cbind(normalDia, idCliente, normalPromedio, normalTotal)
   
   ggplot(promVentaCliente,aes(x=dia,y=mean))+geom_bar(stat='identity')
+  
+  # Con este codigo se genera el archivo preprocesado para la red neuronal
+  
+  moneyDf <- data.frame(trx_data[,c("C87503","C87584", "VWJEFECHAD", "C87601")])
+  names(moneyDf)[1] <- "monto"
+  names(moneyDf)[2] <- "idCliente"
+  names(moneyDf)[3] <- "dia"
+  names(moneyDf)[4] <- "indicador"
+  #promVentaCliente <- ddply(moneyDf,c("idCliente","dia"),summarise,mean=mean(monto),sum=sum(monto))
+  
+  normalDia <- normalize(moneyDf$dia)
+  normalMonto <- normalize(moneyDf$monto)
+  idCliente <- moneyDf$idCliente
+  indicador <- normalize(as.numeric(moneyDf$indicador))
+  
+  normalizedDS <- cbind(normalDia, idCliente, normalMonto, indicador)
+  
   
   return(promVentaCliente)
 }
@@ -221,11 +238,26 @@ preprocessFreqPaisComercioByClient<-function()
   
   normalDia <- normalize(promVentaCliente$dia)
   normalFreq <- normalize(promVentaCliente$freq)
-  normalIdCliente <- normalize(promVentaCliente$idCliente)
+  idCliente <- promVentaCliente$idCliente
   
-  normalizedDS <- cbind(normalDia, normalFreq, normalIdCliente)
+  normalizedDS <- cbind(normalDia, normalFreq, idCliente)
   
   ggplot(promVentaCliente,aes(x=idCliente,y=freq))+geom_bar(stat='identity')
+  
+  # Con este codigo se genera el archivo preprocesado para la red neuronal
+  moneyDf <- data.frame(trx_data[,c("C87543","C87584", "VWJEFECHAD", "C87601")])
+  names(moneyDf)[1] <- "paisComercio"
+  names(moneyDf)[2] <- "idCliente"
+  names(moneyDf)[3] <- "dia"
+  names(moneyDf)[4] <- "indicador"
+  #promVentaCliente <- ddply(moneyDf,c("idCliente","dia"),summarise,freq=length(paisComercio))
+  
+  normalDia <- normalize(moneyDf$dia)
+  normalPais <- normalize(moneyDf$paisComercio)
+  idCliente <- moneyDf$idCliente
+  indicador <- normalize(as.numeric(moneyDf$indicador))
+  
+  normalizedDS <- cbind(normalDia, normalPais, idCliente, indicador)
   
   return(promVentaCliente)
 }
